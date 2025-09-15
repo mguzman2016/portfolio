@@ -1,6 +1,7 @@
 import os
 import csv
 from api.api import get_jobs
+from database.load_tables import load_id_files, dump_missing_job_ids_to_file
 
 def main():
     url = "https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-211&count=50&q=jobSearch&query=(origin:JOB_SEARCH_PAGE_SEARCH_BUTTON,keywords:Data%20Engineer,locationUnion:(geoId:105646813),selectedFilters:(distance:List(25)),spellCorrectionEnabled:true)&start=0"
@@ -19,7 +20,15 @@ def main():
             for id_ in job_ids:
                 writer.writerow([id_,1])
             f.flush()
-
-    print(total_jobs)
+    
+    if total_jobs:
+        load_id_files()
+        dump_missing_job_ids_to_file()
+    
+    with open("tmp_data/missing_ids.csv") as infile:
+        for line in infile:
+            value = line.strip()
+            value = value.strip('"')
+            print(f"{value}...next...")
 
 main()
