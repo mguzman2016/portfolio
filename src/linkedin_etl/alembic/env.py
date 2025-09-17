@@ -12,6 +12,8 @@ from models.etl_config import EtlStatus
 from models.jobs import Jobs
 from models.search_history import SearchHistory
 from models.staging_jobs import StagingJobs
+from models.staging_companies import StagingCompanies
+from models.staging_job_details import StagingJobDetails
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

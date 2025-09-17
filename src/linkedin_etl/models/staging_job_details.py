@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String, DECIMAL, TEXT, BigInteger, DateT
 from sqlalchemy.sql import func
 from .base import Base
 
-class Jobs(Base):
-    __tablename__ = "lk_jobs"
+class StagingJobDetails(Base):
+    __tablename__ = "lk_staging_job_details"
 
     job_id = Column("job_id", BigInteger, primary_key = True)
     job_name = Column("job_name", String(1000))

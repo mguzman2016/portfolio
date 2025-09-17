@@ -11,7 +11,6 @@ TMP_DIR.mkdir(parents=True, exist_ok=True)
 JOBS_CSV = TMP_DIR / "jobs.csv"
 COMPANIES_CSV = TMP_DIR / "companies.csv"
 
-# Columns (order matters for LOAD DATA INFILE)
 JOB_COLS = [
     "job_id",
     "job_name",
@@ -98,8 +97,8 @@ def main():
     #         f.flush()
     
     if total_jobs:
-        # load_id_files()
-        # dump_missing_job_ids_to_file()
+        load_id_files()
+        dump_missing_job_ids_to_file()
 
         delete_file_if_exists(JOBS_CSV)
         delete_file_if_exists(COMPANIES_CSV)
@@ -132,11 +131,14 @@ def main():
         companies_file.flush()
     
     with open("tmp_data/missing_ids.csv") as infile:
+        processed = False
         for line in infile:
             value = line.strip().strip('"')
 
             if not value:
                 continue
+
+            processed = True
 
             job_information, company_information = get_job_details(detail_url.replace('job_id',value), headers)
             
@@ -145,5 +147,7 @@ def main():
 
             jobs_file.flush()
             companies_file.flush()
+        
+
 
 main()

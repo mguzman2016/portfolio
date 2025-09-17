@@ -24,6 +24,7 @@ def load_id_files():
         IGNORE 1 LINES
         (job_id, etl_id);
     """
+    print(sql)
     execute_sql(sql)
 
 def dump_missing_job_ids_to_file():
@@ -40,5 +41,35 @@ def dump_missing_job_ids_to_file():
         FIELDS TERMINATED BY ','
         ENCLOSED BY '"'
         LINES TERMINATED BY '\n';
+    """
+    execute_sql(sql)
+
+def stage_jobs_file():
+    working_directory = pathlib.Path().resolve()
+    current_path = os.environ.get('CONTAINER_DATA_PATH') or f"{working_directory}/tmp_data"
+    file_path =  f"{current_path}/ids.csv"
+    sql = f"""
+        LOAD DATA INFILE '{file_path}'
+        IGNORE
+        INTO TABLE lk_staging_jobs 
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES
+        (job_id, etl_id);
+    """
+    execute_sql(sql)
+
+def stage_companies_file():
+    working_directory = pathlib.Path().resolve()
+    current_path = os.environ.get('CONTAINER_DATA_PATH') or f"{working_directory}/tmp_data"
+    file_path =  f"{current_path}/ids.csv"
+    sql = f"""
+        LOAD DATA INFILE '{file_path}'
+        IGNORE
+        INTO TABLE lk_staging_jobs 
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES
+        (job_id, etl_id);
     """
     execute_sql(sql)
