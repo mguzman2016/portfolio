@@ -2,8 +2,10 @@ import os
 import csv
 from pathlib import Path
 
+from data_processing.pipeline import clean_temporary_data_directory, fetch_linkedin_job_ids, load_job_ids_into_stage_table
+
 from api.api import get_jobs, get_job_details
-from database.load_tables import load_id_files, dump_missing_job_ids_to_file
+from database.load_tables import load_id_files, dump_missing_job_ids_to_file, stage_jobs_file, stage_companies_file, load_tables
 
 TMP_DIR = Path("tmp_data")
 TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -35,8 +37,15 @@ COMPANY_COLS = [
     "company_industries",
 ]
 
-def _is_empty(path: Path) -> bool:
-    return (not path.exists()) or path.stat().st_size == 0
+def delete_all_files(directory):
+    files = os.listdir(directory)
+    print("Files:", files)
+    
+    for file in files:
+        file_path = os.path.join(directory, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            print(f"Deleted: {file_path}")
 
 def _sanitize(value):
     """Make values safe for line-based CSV loading.
@@ -57,35 +66,26 @@ def _sanitize(value):
 def _prep_row(raw: dict, columns: list[str]) -> dict:
     return {col: _sanitize(raw.get(col)) for col in columns}
 
-def _open_writer(path: Path, fieldnames: list[str]) -> csv.DictWriter:
-    # newline="" is crucial to avoid blank lines on Windows
-    f = open(path, "a", encoding="utf-8", newline="")
-    writer = csv.DictWriter(
-        f,
-        fieldnames=fieldnames,
-        extrasaction="ignore",
-        quoting=csv.QUOTE_ALL,           # ensures ENCLOSED BY '"' works
-        lineterminator="\n",
-        escapechar='\\'                  # if ever needed, MySQL also accepts ESCAPED BY '\'
-    )
-    if _is_empty(path):
-        writer.writeheader()
-        f.flush()
-    return writer
-
 def delete_file_if_exists(path: Path):
     path.unlink(missing_ok=True)
 
 def main():
-    url = "https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-211&count=50&q=jobSearch&query=(origin:JOB_SEARCH_PAGE_SEARCH_BUTTON,keywords:Data%20Engineer,locationUnion:(geoId:105646813),selectedFilters:(distance:List(25)),spellCorrectionEnabled:true)&start=0"
-    detail_url = "https://www.linkedin.com/voyager/api/jobs/jobPostings/job_id?decorationId=com.linkedin.voyager.deco.jobs.web.shared.WebFullJobPosting-65&topN=1&topNRequestedFlavors=List(TOP_APPLICANT,IN_NETWORK,COMPANY_RECRUIT,SCHOOL_RECRUIT,HIDDEN_GEM,ACTIVELY_HIRING_COMPANY)"
+    # clean_temporary_data_directory()
+    # total_jobs_found = fetch_linkedin_job_ids()
+    load_job_ids_into_stage_table()
 
-    headers = {
-        'Cookie' : os.environ.get("cookie"),
-        'Csrf-Token' : os.environ.get("csfrtoken")
-    }
+    # url = "https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-211&count=50&q=jobSearch&query=(origin:JOB_SEARCH_PAGE_SEARCH_BUTTON,keywords:Data%20Engineer,locationUnion:(geoId:105646813),selectedFilters:(distance:List(25)),spellCorrectionEnabled:true)&start=0"
+    # detail_url = "https://www.linkedin.com/voyager/api/jobs/jobPostings/job_id?decorationId=com.linkedin.voyager.deco.jobs.web.shared.WebFullJobPosting-65&topN=1&topNRequestedFlavors=List(TOP_APPLICANT,IN_NETWORK,COMPANY_RECRUIT,SCHOOL_RECRUIT,HIDDEN_GEM,ACTIVELY_HIRING_COMPANY)"
 
-    total_jobs = 1
+    # headers = {
+    #     'Cookie' : os.environ.get("cookie"),
+    #     'Csrf-Token' : os.environ.get("csfrtoken")
+    # }
+
+    # total_jobs = 0
+
+    # delete_all_files("tmp_data")
+
     # with open("tmp_data/ids.csv", "w", newline="", encoding="utf-8") as f:
     #     writer = csv.writer(f)
     #     writer.writerow(["id"])
@@ -96,58 +96,62 @@ def main():
     #             writer.writerow([id_,1])
     #         f.flush()
     
-    if total_jobs:
-        load_id_files()
-        dump_missing_job_ids_to_file()
+    # if total_jobs:
+    #     load_id_files()
+    #     dump_missing_job_ids_to_file()
 
-        delete_file_if_exists(JOBS_CSV)
-        delete_file_if_exists(COMPANIES_CSV)
+    #     delete_file_if_exists(JOBS_CSV)
+    #     delete_file_if_exists(COMPANIES_CSV)
 
-        jobs_file = open(JOBS_CSV, "a", encoding="utf-8", newline="")
-        companies_file = open(COMPANIES_CSV, "a", encoding="utf-8", newline="")
+    #     jobs_file = open(JOBS_CSV, "a", encoding="utf-8", newline="")
+    #     companies_file = open(COMPANIES_CSV, "a", encoding="utf-8", newline="")
 
-        jobs_writer = csv.DictWriter(
-            jobs_file,
-            fieldnames=JOB_COLS,
-            extrasaction="ignore",
-            quoting=csv.QUOTE_ALL,
-            lineterminator="\n",
-            escapechar='\\'
-        )
+    #     jobs_writer = csv.DictWriter(
+    #         jobs_file,
+    #         fieldnames=JOB_COLS,
+    #         extrasaction="ignore",
+    #         quoting=csv.QUOTE_ALL,
+    #         lineterminator="\n",
+    #         escapechar='\\'
+    #     )
 
-        jobs_writer.writeheader()
-        jobs_file.flush()
+    #     jobs_writer.writeheader()
+    #     jobs_file.flush()
 
-        companies_writer = csv.DictWriter(
-            companies_file,
-            fieldnames=COMPANY_COLS,
-            extrasaction="ignore",
-            quoting=csv.QUOTE_ALL,
-            lineterminator="\n",
-            escapechar='\\'
-        )
+    #     companies_writer = csv.DictWriter(
+    #         companies_file,
+    #         fieldnames=COMPANY_COLS,
+    #         extrasaction="ignore",
+    #         quoting=csv.QUOTE_ALL,
+    #         lineterminator="\n",
+    #         escapechar='\\'
+    #     )
 
-        companies_writer.writeheader()
-        companies_file.flush()
+    #     companies_writer.writeheader()
+    #     companies_file.flush()
     
-    with open("tmp_data/missing_ids.csv") as infile:
-        processed = False
-        for line in infile:
-            value = line.strip().strip('"')
+    # with open("tmp_data/missing_ids.csv") as infile:
+    #     processed = False
+    #     for line in infile:
+    #         value = line.strip().strip('"')
 
-            if not value:
-                continue
+    #         if not value:
+    #             continue
 
-            processed = True
+    #         processed = True
 
-            job_information, company_information = get_job_details(detail_url.replace('job_id',value), headers)
-            
-            jobs_writer.writerow(_prep_row(job_information, JOB_COLS))
-            companies_writer.writerow(_prep_row(company_information, COMPANY_COLS))
+    #         job_information, company_information = get_job_details(detail_url.replace('job_id',value), headers)
 
-            jobs_file.flush()
-            companies_file.flush()
+    #         if job_information:
+    #             jobs_writer.writerow(_prep_row(job_information, JOB_COLS))
+    #             jobs_file.flush()
+                
+    #         if company_information:
+    #             companies_writer.writerow(_prep_row(company_information, COMPANY_COLS))
+    #             companies_file.flush()
         
-
+    # stage_jobs_file()
+    # stage_companies_file()
+    # load_tables()
 
 main()

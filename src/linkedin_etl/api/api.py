@@ -1,11 +1,11 @@
 import time
-import requests
+from requests import get, HTTPError
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 def get_request(url, headers, delay=1):
     if delay:
         time.sleep(1)
-    response = requests.get(url, headers=headers)
+    response = get(url, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -49,8 +49,14 @@ def get_jobs(url: str, headers: dict):
             url = add_parameters(url=url, start=start)
 
 def get_job_details(url: str, headers: dict): 
-
-    job_detail_response = get_request(url, headers)
+    try:
+        job_detail_response = get_request(url, headers)
+    except HTTPError as e:
+        if e.response is not None and e.response.status_code == 404:
+            # It's possible (for whatever reason) that a job detail is not available
+            # in this case we ignore it and continue the rest of the ETL pipeline
+            return ({}, {})
+        raise
 
     job_information = {}
     company_information = {}

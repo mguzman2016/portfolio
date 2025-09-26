@@ -17,7 +17,5 @@ class StagingJobDetails(Base):
     job_functions = Column("job_functions", TEXT)
     job_experience_level = Column("job_experience_level", String(255))
     job_views = Column("job_views",Integer)
-    job_lang = Column("job_lang", String(10))
-    etl_id = Column("etl_id", Integer)
     company_id = Column("company_id", Integer)
-    last_updated = Column("last_updated", DateTime, default=func.now())
+    
