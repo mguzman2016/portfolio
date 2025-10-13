@@ -35,7 +35,7 @@ def upgrade() -> None:
     op.create_table('lk_etl_status',
     sa.Column('etl_id', sa.Integer(), nullable=False),
     sa.Column('etl_search', sa.String(length=255), nullable=True),
-    sa.Column('etl_url', sa.String(length=255), nullable=True),
+    sa.Column('etl_url', sa.String(length=2000), nullable=True),
     sa.Column('is_running', sa.Boolean(), nullable=True),
     sa.Column('last_updated', sa.Date(), nullable=True),
     sa.Column('country', sa.String(length=255), nullable=True),

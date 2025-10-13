@@ -20,8 +20,7 @@ def add_parameters(url: str, count: int = 50, start: int = 0):
 
     return urlunparse(parsed._replace(query=new_query))
 
-def get_jobs(url: str, headers: dict):
-        
+def get_jobs(url: str, headers: dict):   
         url = add_parameters(url)
 
         get_job_id = lambda job:   job.get("jobCardUnion",{}).\

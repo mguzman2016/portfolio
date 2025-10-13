@@ -44,9 +44,7 @@ def dump_data_to_file(data_path, sql):
     """
     execute_sql(sql, True)
     execute_sql(sql)
-
-#=================================================================================================================================
-    
+ 
 def load_id_files():
     working_directory = pathlib.Path().resolve()
     current_path = os.environ.get('CONTAINER_DATA_PATH') or f"{working_directory}/tmp_data"
@@ -68,7 +66,7 @@ def dump_missing_job_ids_to_file():
     current_path = os.environ.get('CONTAINER_DATA_PATH') or f"{working_directory}/tmp_data"
     file_path =  f"{current_path}/missing_ids.csv"
     sql = f"""
-        SELECT lsj.job_id
+        SELECT DISTINCT lsj.job_id
         FROM lk_staging_jobs lsj 
         LEFT JOIN lk_jobs lj ON lsj.job_id = lj.job_id
         WHERE lj.job_id IS NULL
@@ -115,7 +113,7 @@ def stage_companies_file():
     execute_sql(truncate_sql)
     execute_sql(sql)
 
-def load_tables():
+def load_tables(etl_id):
     load_jobs_sql = f"""
         INSERT INTO lk_jobs (
             job_id,
@@ -148,8 +146,8 @@ def load_tables():
             job_functions,
             job_experience_level,
             job_views,
-            'Spanish' AS job_lang,
-            1 AS etl_id,
+            NULL AS job_lang,
+            {etl_id} AS etl_id,
             company_id,
             DATE(CURRENT_DATE()) AS last_updated
         FROM lk_staging_job_details lsjd
