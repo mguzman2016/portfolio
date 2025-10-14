@@ -1,0 +1,5 @@
+requests
+alembic
+pymysql
+sqlalchemy
+cryptography
