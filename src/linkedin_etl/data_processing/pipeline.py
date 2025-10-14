@@ -74,19 +74,19 @@ def fetch_missing_job_details():
             companies_file.flush()
 
 def load_job_ids_into_stage_table():
-    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/ids.csv" or IDS_FILE_CSV.absolute()
+    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/ids.csv" if os.environ.get('CONTAINER_DATA_PATH') else IDS_FILE_CSV.absolute()
     stage_table(data_path, "lk_staging_jobs", ",".join(IDS_FILE_COLUMNS))
 
 def load_jobs_into_stage_table():
-    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/jobs.csv" or JOBS_CSV.absolute()
+    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/jobs.csv" if os.environ.get('CONTAINER_DATA_PATH') else JOBS_CSV.absolute()
     stage_table(data_path, "lk_staging_job_details", ",".join(JOB_COLS))
 
 def load_companies_into_stage_table():
-    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/companies.csv" or COMPANIES_CSV.absolute()
+    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/companies.csv" if os.environ.get('CONTAINER_DATA_PATH') else COMPANIES_CSV.absolute()
     stage_table(data_path, "lk_staging_companies", ",".join(COMPANY_COLS))
 
 def save_missing_job_ids_to_file():
-    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/missing_ids.csv" or MISSING_IDS_FILE_CSV.absolute()
+    data_path = os.environ.get('CONTAINER_DATA_PATH')+"/missing_ids.csv" if os.environ.get('CONTAINER_DATA_PATH') else MISSING_IDS_FILE_CSV.absolute()
     dump_missing_job_ids_to_file(data_path)
 
 def load_datamart_tables(etl_id):
