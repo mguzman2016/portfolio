@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKDIR="~/portfolio/src/linkedin_etl"         
-VENV="~/portfolio/src/linkedin_etl/.venv"      
+WORKDIR="$HOME/portfolio/src/linkedin_etl"         
+VENV="$HOME/portfolio/src/linkedin_etl/.venv"      
 PYTHON="$VENV/bin/python"
 LOGDIR="$WORKDIR/logs"
 ENVFILE="$WORKDIR/.env"                     
