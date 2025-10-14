@@ -1,11 +1,19 @@
 import time
+import os
 from requests import get, HTTPError
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
-def get_request(url, headers, delay=1):
+DETAIL_URL = "https://www.linkedin.com/voyager/api/jobs/jobPostings/job_id?decorationId=com.linkedin.voyager.deco.jobs.web.shared.WebFullJobPosting-65&topN=1&topNRequestedFlavors=List(TOP_APPLICANT,IN_NETWORK,COMPANY_RECRUIT,SCHOOL_RECRUIT,HIDDEN_GEM,ACTIVELY_HIRING_COMPANY)"
+
+HEADERS = {
+    'Cookie' : os.environ.get("cookie"),
+    'Csrf-Token' : os.environ.get("csfrtoken")
+}
+
+def get_request(url, delay=1):
     if delay:
         time.sleep(1)
-    response = get(url, headers=headers)
+    response = get(url, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
@@ -20,7 +28,7 @@ def add_parameters(url: str, count: int = 50, start: int = 0):
 
     return urlunparse(parsed._replace(query=new_query))
 
-def get_jobs(url: str, headers: dict):   
+def get_jobs(url: str):   
         url = add_parameters(url)
 
         get_job_id = lambda job:   job.get("jobCardUnion",{}).\
@@ -33,7 +41,7 @@ def get_jobs(url: str, headers: dict):
 
         while True:
             print(f"Fetching jobs, current pagination: {start}")
-            job_response = get_request(url, headers=headers)
+            job_response = get_request(url)
             if not job_response["elements"]:
                 break
 
@@ -47,9 +55,10 @@ def get_jobs(url: str, headers: dict):
             start += step
             url = add_parameters(url=url, start=start)
 
-def get_job_details(url: str, headers: dict): 
+def get_job_details(job_id: str): 
     try:
-        job_detail_response = get_request(url, headers)
+        url = DETAIL_URL.replace('job_id',job_id)
+        job_detail_response = get_request(url)
     except HTTPError as e:
         if e.response is not None and e.response.status_code == 404:
             # It's possible (for whatever reason) that a job detail is not available

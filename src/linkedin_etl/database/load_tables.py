@@ -113,6 +113,13 @@ def stage_companies_file():
     execute_sql(truncate_sql)
     execute_sql(sql)
 
+def dump_missing_job_ids_to_file(data_path):
+    sql = """SELECT lsj.job_id
+        FROM lk_staging_jobs lsj 
+        LEFT JOIN lk_jobs lj ON lsj.job_id = lj.job_id
+        WHERE lj.job_id IS NULL"""
+    dump_data_to_file(data_path, sql)
+
 def load_tables(etl_id):
     load_jobs_sql = f"""
         INSERT INTO lk_jobs (
