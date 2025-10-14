@@ -1,8 +1,9 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .base import Base
 
-DATABASE_URL = "mysql+pymysql://root:0000@localhost/lk_scrapper"
+DATABASE_URL = os.getenv("DATABASE_URL") or "mysql+pymysql://root:0000@localhost/lk_scrapper"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
