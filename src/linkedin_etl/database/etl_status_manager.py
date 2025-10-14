@@ -21,7 +21,7 @@ def change_etl_status_to_running(etl_id):
 def change_etl_status_to_not_running(etl_id):
     sql = f"""
         UPDATE lk_etl_status
-        SET is_running = true
+        SET is_running = false
         WHERE etl_id = {etl_id}
     """
     execute_sql(sql)
