@@ -20,4 +20,5 @@ class Jobs(Base):
     job_lang = Column("job_lang", String(10))
     etl_id = Column("etl_id", Integer)
     company_id = Column("company_id", Integer)
+    created_at = Column("created_at", DateTime, default=func.now())
     last_updated = Column("last_updated", DateTime, default=func.now())

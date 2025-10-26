@@ -9,7 +9,8 @@ class EtlStatus(Base):
     etl_url = Column("etl_url", String(255))
     is_running = Column("is_running", Boolean)
     last_updated = Column("last_updated", Date)
-    country = Column("country", String(255)) 
+    country = Column("country", String(255))
+    city = Column("city", String(255)) 
 
     def __str__(self):
         return '-'.join([
