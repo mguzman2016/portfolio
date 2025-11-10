@@ -3,13 +3,13 @@ import streamlit as st
 import random
 import time
 from typing import Dict
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from agents import Agent, Runner, trace, function_tool
 import asyncio
 
-load_dotenv(override=True)
+# load_dotenv(override=True)
 
 st.write("This is a sample agent which allows you to chat with my resume.")
 st.caption("Note that this is just a demo.")
