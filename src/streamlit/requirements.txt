@@ -3,3 +3,8 @@ pandas
 pymysql
 sqlalchemy
 altair
+cryptography
+openai
+openai-agents
+sendgrid
+asyncio
